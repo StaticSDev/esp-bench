@@ -50,8 +50,9 @@ def bench_run():
     mem_ms = (time.perf_counter() - t0) * 1000.0
 
     return {
-        "who": f"Render free ({platform.system()} py{platform.python_version()} "
-               f"x{os.cpu_count()})",
+        "who": ("Render free" if os.environ.get("RENDER")
+                else f"Локальный сервер ({platform.node()})")
+               + f" {platform.system()} py{platform.python_version()} x{os.cpu_count()}",
         "cpu_int": {"n": CPU_N, "ms": round(cpu_ms, 1), "checksum": x},
         "sha256": {"mb": SHA_MB, "ms": round(sha_ms, 1),
                    "mbps": round(SHA_MB * 1000.0 / max(sha_ms, 0.1), 1),

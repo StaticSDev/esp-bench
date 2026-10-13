@@ -135,7 +135,7 @@ def main():
         lower_is_better=False,
         fmt_a=lambda v: f"{v:.1f}" if v else "-",
         fmt_b=lambda v: f"{v:.1f}" if v else "-")
-    row("Память 25.6 МБ (меньше=лучше)",
+    row("Память 26.2 МБ (меньше=лучше)",
         esp["mem"]["ms"], srv["mem"]["ms"])
     if ep is not None or sp is not None:
         row("HTTP ping (меньше=лучше)", ep, sp)
