@@ -43,12 +43,19 @@ def esp_serial_run(port=PORT, timeout=60):
         while time.time() < end:
             r, _, _ = select.select([fd], [], [], 0.5)
             if fd in r:
-                chunk = os.read(fd, 8192).decode("utf-8", "replace")
-                buf += chunk
-                for line in buf.splitlines():
-                    line = line.strip()
-                    if line.startswith("{") and '"cpu_int"' in line:
-                        return json.loads(line)
+                buf += os.read(fd, 8192).decode("utf-8", "replace")
+            # JSON может прийти кусками — ищем начало и пробуем разобрать,
+            # raw_decode вернёт объект, как только он станет полным
+            i = buf.find('{"who"')
+            if i < 0:
+                i = buf.find('{"cpu_int"')
+            if i >= 0:
+                try:
+                    obj, _ = json.JSONDecoder().raw_decode(buf[i:])
+                    if "cpu_int" in obj:
+                        return obj
+                except ValueError:
+                    pass   # ещё не дописали, ждём следующий кусок
     finally:
         os.close(fd)
     raise RuntimeError("ESP не вернул JSON за %dс (запущен ли esp_bench?)" % timeout)
